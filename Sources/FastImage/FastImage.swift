@@ -8,11 +8,14 @@
 import SwiftUI
 
 @available(iOS 16.0, *)
-public struct FastImage: View {
+public struct FastImage<Placeholder: View>: View {
+    
     @State var image: UIImage?
     var url: URL
     var progressWidth: CGFloat
     var progressHeight: CGFloat
+    var placeholder: Placeholder?
+    var cache: Bool
     
     public var body: some View {
         HStack {
@@ -22,26 +25,45 @@ public struct FastImage: View {
                     .aspectRatio(contentMode: .fit)
                     .frame(width: .infinity)
             } else {
-                ProgressView()
-                    .frame(width: progressWidth, height: progressHeight)
+                if placeholder != nil {
+                    placeholder
+                } else {
+                    ProgressView()
+                        .frame(width: progressWidth, height: progressHeight)
+                }
             }
         }
         .onAppear() {
-            fastDownImg()
+            dowloadImageForURL()
         }
     }
     
-    public init(url: URL, progressWidth: CGFloat = 300, progressHeight: CGFloat = 200) {
+    public init(_ url: URL,
+                progressWidth: CGFloat = 300,
+                progressHeight: CGFloat = 200,
+                cache: Bool = true,
+                @ViewBuilder placeholder: @escaping () -> Placeholder? = { nil }) {
         self.url = url
         self.progressWidth = progressWidth
         self.progressHeight = progressHeight
+        self.placeholder = placeholder()
+        self.cache = cache
     }
     
-    private func fastDownImg() {
+    public init?(_ url: URL,
+                progressWidth: CGFloat = 300,
+                progressHeight: CGFloat = 200,
+                cache: Bool = true) where Placeholder == AnyView {
+        self.url = url
+        self.progressWidth = progressWidth
+        self.progressHeight = progressHeight
+        self.cache = cache
+    }
+    
+    private func dowloadImageForURL() {
         Task {
             do {
-                let imageTemp = try await FastLoader().image(from: url)
-                image = imageTemp
+                image = try await FastLoader().image(from: url, cacheEnabled: cache)
             } catch {
                 print("Error: \(error.localizedDescription)")
             }
@@ -54,11 +76,13 @@ public class FastLoader {
     
     private let imageCache = FastCache()
 
-    func image(from url: URL) async throws -> UIImage {
-        if let cachedImage = imageCache.image(for: url) {
-            return cachedImage
+    func image(from url: URL, cacheEnabled: Bool = true) async throws -> UIImage {
+        if cacheEnabled {
+            if let cachedImage = imageCache.image(for: url) {
+                return cachedImage
+            }
         }
-
+        
         let data = try await downloadImageData(from: url)
         guard let image = UIImage(data: data) else {
             throw NSError(domain: "InvalidImageData", code: 0, userInfo: nil)
