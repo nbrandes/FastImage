@@ -1,6 +1,6 @@
 # FastImage
 
-A SwiftUI Image with async downloader with cache support
+Asynchronous Image View with downloader and cache support, for SwiftUI
 
 <img src=https://raw.githubusercontent.com/nbrandes/FastImage/main/Docs/Media/fastimage.gif width=300 align="right" />
 
@@ -72,7 +72,7 @@ struct ContentView: View {
 
 ## FastLoader
 
-FastLoader may also be used on it's own to fetch images with caching support
+FastLoader can fetch images with caching support
 
 ```swift
 struct ContentView: View {
