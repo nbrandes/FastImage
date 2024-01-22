@@ -47,6 +47,7 @@ Required: \
 `url: URL` - the `URL` of an image to load
 
 Optional: \
+`aspectRatio: ContentMode` - (Default .fit) - constrains dimensions to the given size \
 `progressWidth: CGFloat` - (Default 300) - width of the `ProgressView` frame \
 `progressHeight: Color` - (Default 200) - height of the `ProgressView` frame \
 `cache: Bool` - (Default true) - enable/disable image caching \

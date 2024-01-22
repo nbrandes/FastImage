@@ -16,13 +16,14 @@ public struct FastImage<Placeholder: View>: View {
     var progressHeight: CGFloat
     var placeholder: Placeholder?
     var cache: Bool
+    var aspectRatio: ContentMode
     
     public var body: some View {
         HStack {
             if let image = image {
                 Image(uiImage: image)
                     .resizable()
-                    .aspectRatio(contentMode: .fit)
+                    .aspectRatio(contentMode: aspectRatio)
                     .frame(width: .infinity)
             } else {
                 if placeholder != nil {
@@ -39,11 +40,13 @@ public struct FastImage<Placeholder: View>: View {
     }
     
     public init(_ url: URL,
+                aspectRatio: ContentMode = .fit,
                 progressWidth: CGFloat = 300,
                 progressHeight: CGFloat = 200,
                 cache: Bool = true,
                 @ViewBuilder placeholder: @escaping () -> Placeholder? = { nil }) {
         self.url = url
+        self.aspectRatio = aspectRatio
         self.progressWidth = progressWidth
         self.progressHeight = progressHeight
         self.placeholder = placeholder()
@@ -51,10 +54,12 @@ public struct FastImage<Placeholder: View>: View {
     }
     
     public init?(_ url: URL,
+                aspectRatio: ContentMode = .fit,
                 progressWidth: CGFloat = 300,
                 progressHeight: CGFloat = 200,
                 cache: Bool = true) where Placeholder == AnyView {
         self.url = url
+        self.aspectRatio = aspectRatio
         self.progressWidth = progressWidth
         self.progressHeight = progressHeight
         self.cache = cache
